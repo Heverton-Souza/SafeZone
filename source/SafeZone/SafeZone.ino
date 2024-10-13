@@ -9,7 +9,8 @@ const int ledVerde = 19;      // Pino do LED verde
 const int ledAzul = 23;       // Pino do LED azul
 
 // Variáveis para armazenar horários e estados
-String horaRecebida = "";     // Variável para armazenar a hora recebida pelo app
+String horaAtivacao = "";     // Variável para armazenar a hora de ativacao recebida pelo app
+String horaDesativacao = "";  // Variável para armazenar a hora de desativacao recebida pelo app
 String horario = "";          // Variável para armazenar a hora atual
 bool estadoSensor = false;    // Estado do sensor (porta/janela aberta ou fechada)
 bool estadoApp = false;       // Estado do alarme controlado pelo app (ativado/desativado)
@@ -53,16 +54,27 @@ void getMessage() {
     // Verifica os comandos recebidos para ativar ou desativar o alarme
     if (comando.indexOf("GET /0") >= 0) {
       Serial.println("Comando recebido: 0");
-      estadoApp = false;  // Desativa o alarme
+      estadoApp = false;    // Desativa o alarme
+      horaAtivacao = "";     // Limpa o horário de ativação
+      horaDesativacao = "";  // Limpa o horário de deativação
+
     } else if (comando.indexOf("GET /1") >= 0) {
       Serial.println("Comando recebido: 1");
       estadoApp = true;   // Ativa o alarme
-    } else if (comando.indexOf("GET /hora=") >= 0) {
+
+    } else if (comando.indexOf("GET /horaAtivacao=") >= 0) { // Verifica se uma hora para ser ativado foi agendado
       // Obtém a hora enviada pelo app
       int pos = comando.indexOf("hora=") + 5;
-      horaRecebida = comando.substring(pos, pos + 5);  // Extrai a hora (HH:MM)
+      horaAtivacao = comando.substring(pos, pos + 5);  // Extrai a hora (HH:MM)
       Serial.print("Hora recebida: ");
-      Serial.println(horaRecebida);
+      Serial.println(horaAtivacao);
+
+    } else if (comando.indexOf("GET /horaDesativacao=") >= 0) { // Verifica se uma hora para ser desativado foi agendado
+      // Obtém a hora enviada pelo app
+      int pos = comando.indexOf("hora=") + 5;
+      horaDesativacao = comando.substring(pos, pos + 5);  // Extrai a hora (HH:MM)
+      Serial.print("Hora recebida: ");
+      Serial.println(horaDesativacao);
     }
 
     // Envia uma resposta HTTP simples ao app para confirmar o recebimento
@@ -124,9 +136,14 @@ void loop() {
   getMessage();  // Verifica se há comandos do app
   getTime();     // Atualiza a hora via NTP
 
-  // Se a hora atual coincide com a hora agendada pelo usuário, ativa o alarme
-  if (horario == horaRecebida) {
+  // Se a hora atual coincide com a hora agendada para ativação pelo usuário, ativa o alarme
+  if (horario == horaAtivacao) {
     estadoApp = true;
+  }
+
+  // Se a hora atual coincide com a hora agendada para desativacao pelo usuário, desativa o alarme
+  if (horario == horaDesativacao) {
+    estadoApp = false;
   }
 
   // Se o alarme está desativado pelo app, o sistema permanece inativo

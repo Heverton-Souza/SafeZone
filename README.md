@@ -46,12 +46,19 @@
 <p>O aplicativo foi desenvolvido no <a href="https://appinventor.mit.edu/">App Inventor</a> e permite o controle remoto do sistema de alarme:</p>
 
 <ul>
-    <li><strong>Ativar/Desativar Alarme</strong>: Controle o estado do sistema manualmente.</li>
-    <li><strong>Agendamento</strong>: Defina horários para ativar o alarme automaticamente.</li>
+    <li><strong>On/Off Alarme</strong>: Controle o estado do sistema manualmente.</li>
+    <li><strong>Agendar Ativacao</strong>: Defina horários para ativar o alarme automaticamente.</li>
+    <li><strong>Agendar Desativacao</strong>: Defina horários para desativar o alarme automaticamente.</li>
 </ul>
 
-![blocos](assets/BlocosAppinventor.png)
+![app](assets/AppDesign.jpg)
 
-![blocos](assets/AppDesign.jpg)
+<p><strong>Programação em blocos no appinventor:<strong></p>
 
-<strong>Nota:</strong> O App Inventor tem uma limitação: não é possível salvar o estado do botão ao reiniciar o aplicativo. Isso significa que, se o app for reiniciado, o usuário precisará selecionar o botão duas vezes para desativar o alarme.
+![blocos](assets/Variaveis.png)
+![blocos](assets/OnOff.png)
+
+<strong>Nota:</strong> O App Inventor tem uma limitação: não é possível salvar o estado do botão ao reiniciar o aplicativo. Isso significa que, se o app for reiniciado, o usuário precisará selecionar o botão duas vezes para desativar o alarme. Mesmo com essa limitação, foi adicionado uma breve lógica de como seria a aplicação do TinyDB com o intuito de salvar o estado do botão.
+
+![blocos](assets/AgendarAtivacao.png)
+![blocos](assets/AgendarDesativacao.png)

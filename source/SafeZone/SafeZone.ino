@@ -25,7 +25,7 @@ String recebido = "";
 // Configuração do servidor HTTP e cliente NTP
 WiFiServer server(80);  // Cria um servidor na porta 80 (HTTP)
 WiFiUDP ntpUDP;         // Cria uma instância UDP para NTP
-NTPClient ntp(ntpUDP);  // Inicializa o cliente NTP
+NTPClient ntp(ntpUDP, "pool.ntp.org");  // Inicializa o cliente NTP
 
 // Função chamada quando o sensor detecta a porta/janela aberta
 void aberto() {
@@ -34,13 +34,8 @@ void aberto() {
 
 // Função para atualizar o horário via NTP
 void getTime() {
-  if (ntp.update()) {    // Atualiza a hora via NTP
-      Serial.print("HORARIO: ");
-      Serial.println(ntp.getFormattedTime());
-      horario = ntp.getFormattedTime();  // Armazena a hora atual
-    } else {
-      Serial.println("!Erro ao atualizar NTP!\n");  // Erro na atualização NTP
-    }
+  ntp.update();
+  horario = ntp.getFormattedTime();  // Armazena a hora atual   
 }
 
 // Função para tratar os comandos recebidos via HTTP do App Inventor
@@ -62,20 +57,17 @@ void getMessage() {
       Serial.println("Comando recebido: 1");
       estadoApp = true;   // Ativa o alarme
 
-    } else if (comando.indexOf("GET /horaAtivacao=") >= 0) { // Verifica se uma hora para ser ativado foi agendado
-      // Obtém a hora enviada pelo app
-      int pos = comando.indexOf("hora=") + 5;
-      horaAtivacao = comando.substring(pos, pos + 5);  // Extrai a hora (HH:MM)
-      Serial.print("Hora recebida: ");
+    } else if (comando.indexOf("GET /horaAtivacao=") >= 0) { // Verifica se uma hora para ser ativado foi agendada
+      int pos = comando.indexOf("horaAtivacao=") + 13;  
+      horaAtivacao = comando.substring(pos, pos + 5) + ":00";    // Extrai a hora (HH:MM) e adiciona segundos
+      Serial.print("Hora de ativação recebida: ");
       Serial.println(horaAtivacao);
-
-    } else if (comando.indexOf("GET /horaDesativacao=") >= 0) { // Verifica se uma hora para ser desativado foi agendado
-      // Obtém a hora enviada pelo app
-      int pos = comando.indexOf("hora=") + 5;
-      horaDesativacao = comando.substring(pos, pos + 5);  // Extrai a hora (HH:MM)
-      Serial.print("Hora recebida: ");
+  } else if (comando.indexOf("GET /horaDesativacao=") >= 0) { // Verifica se uma hora para ser desativado foi agendada
+      int pos = comando.indexOf("horaDesativacao=") + 16; 
+      horaDesativacao = comando.substring(pos, pos + 5) + ":00";  // Extrai a hora (HH:MM) e adiciona segundos
+      Serial.print("Hora de desativação recebida: ");
       Serial.println(horaDesativacao);
-    }
+  }
 
     // Envia uma resposta HTTP simples ao app para confirmar o recebimento
     client.println("HTTP/1.1 200 OK");
@@ -134,7 +126,7 @@ void setup() {
 
 void loop() {
   getMessage();  // Verifica se há comandos do app
-  getTime();     // Atualiza a hora via NTP
+  getTime();     // Atualiza a hora via NTP 
 
   // Se a hora atual coincide com a hora agendada para ativação pelo usuário, ativa o alarme
   if (horario == horaAtivacao) {
